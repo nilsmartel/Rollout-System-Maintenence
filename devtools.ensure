@@ -1,0 +1,42 @@
+// vim: set syntax=javascript:
+// goalL: the require file can be called every minute by a controller, and if nothing changes, nothing will be done.
+// it should work kubernetes style, but still a little more ... imperative in nature, fit for setting up systems.
+
+// global vars, that tools respect:
+// workdir= $PWD
+
+// we can install tools
+// we can use shelltool to ake installed binaries available as commands here.
+// we can use => to perform commands explicitly SEQUENTIALLY
+let cargo = install rustup => shelltool cargo
+let string=cargo install shell-string => shelltool string
+
+
+// there's supposed to be a git controller, that can listen for changes in master
+
+// we can put this into a variable in order to have other steps depend on it
+let config_repo = 
+    with workdir=$HOME/.config in
+        // the return value of require will be saved, and providers have ways to mark them as dirty or not
+        // for git: commit hash == saved commit hash
+        // providers should
+        // - save ways to identify their SAVE between runs
+        // - now when their work is dirty or not
+        // save which directories and files THEY manage, so they can delete them, if something has changed (like the workdir even)
+        ensure git github.com/nilsmartel/config
+
+
+// variables may carry some information
+with workdir = config_repo.directory in
+    ensure $ (cat template.tmux.conf | string template > $HOME/.tmux.conf)  deps=[template.tmux.conf]
+    ensure $ (string template < template.zsh_rc > $HOME/.zsh_rc)            deps=[template.zsh_rc]
+    // question: should `workdir` carry weight as a deps?
+    // if the workdir changes, should the output of this command be deleted as well?
+    // => we would need a way to know the output, in order to delete zombies.
+
+
+// "git" command is responsible to detect input and output
+// and apply changes. (e.g. sometimes a git pull is enough, default would be delete + reissue)
+ensure git github.com/nilsmartel/kickstart.nvim ~/.config/nvim/
+
+
