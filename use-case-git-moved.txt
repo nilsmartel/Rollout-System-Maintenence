@@ -1,0 +1,26 @@
+the tool should be able to handle this usecase
+
+
+previous run:
+
+ensure git myrepo/hello-world /path/to/repo-old
+
+this run:
+
+ensure git myrepo/hello-world /path/to/repo-changed
+
+
+imperative steps:
+
+- commands get recognized as the same entity
+=> by repo name (and position) in document
+
+Change recognized:
+    outdir:
+        /path/to/repo-old => /path/to/repo-changed
+
+
+Controller Resolution:
+    Modify:
+        - mv /path/to/repo-old /path/to/repo-changed
+    Git Pull

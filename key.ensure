@@ -1,0 +1,5 @@
+
+
+# ensure commands may have a key, so that subsequent runs know how to associate them
+
+ensure :nvim-config myrepo/nvim-config $HOME/.config/nvim
